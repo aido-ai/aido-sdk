@@ -6,6 +6,46 @@ from typing import Any, Callable, Dict, List, Mapping, Optional, Union
 from pydantic import BaseModel, Extra, Field, root_validator
 import yaml
 from aido_client.schemas.schema import BaseMessage, BaseOutputParser, HumanMessage, PromptValue
+from aido_client.utils.formatting import formatter
+
+
+def jinja2_formatter(template: str, **kwargs: Any) -> str:
+    """Format a template using jinja2."""
+    try:
+        from jinja2 import Template
+    except ImportError:
+        raise ValueError(
+            "jinja2 not installed, which is needed to use the jinja2_formatter. "
+            "Please install it with `pip install jinja2`."
+        )
+
+    return Template(template).render(**kwargs)
+
+
+DEFAULT_FORMATTER_MAPPING: Dict[str, Callable] = {
+    "f-string": formatter.format,
+    "jinja2": jinja2_formatter,
+}
+
+
+def check_valid_template(
+    template: str, template_format: str, input_variables: List[str]
+) -> None:
+    """Check that template string is valid."""
+    if template_format not in DEFAULT_FORMATTER_MAPPING:
+        valid_formats = list(DEFAULT_FORMATTER_MAPPING)
+        raise ValueError(
+            f"Invalid template format. Got `{template_format}`;"
+            f" should be one of {valid_formats}"
+        )
+    dummy_inputs = {input_variable: "foo" for input_variable in input_variables}
+    try:
+        formatter_func = DEFAULT_FORMATTER_MAPPING[template_format]
+        formatter_func(template, **dummy_inputs)
+    except KeyError as e:
+        raise ValueError(
+            f"Invalid prompt schema; check for mismatched or missing input parameters. {e} "
+        )
 
 
 class StringPromptValue(PromptValue):

@@ -1,6 +1,12 @@
 import os
 from typing import Any, Dict, Optional
 
+import aido_client
+
+
+def _get_verbosity() -> bool:
+    return aido_client.verbose
+
 
 def get_from_dict_or_env(
     data: Dict[str, Any], key: str, env_key: str, default: Optional[str] = None

@@ -3,7 +3,6 @@ import asyncio
 import logging
 from typing import Any, AsyncIterator, Iterator, List, Optional, Sequence, TypeVar, Union, cast
 from pydantic import BaseModel, Extra, Field, validator
-import aido_client
 from aido_client.callbacks import get_callback_manager
 from aido_client.callbacks.base import BaseCallbackManager
 from aido_client.prompts.base import StringPromptValue
@@ -11,12 +10,9 @@ from aido_client.prompts.chat import ChatPromptValue
 
 from aido_client.schemas.schema import BaseMessage, BaseMessageChunk, \
     ChatGeneration, ChatGenerationChunk, ChatResult, HumanMessage, LLMResult, PromptValue, get_buffer_string
+from aido_client.utils.utils import _get_verbosity
 
 logger = logging.getLogger(__file__)
-
-
-def _get_verbosity() -> bool:
-    return aido_client.verbose
 
 
 LanguageModelInput = Union[PromptValue, str, List[BaseMessage]]
